@@ -1,0 +1,87 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./phanda.db"
+}
+
+model Merchant {
+  id                String        @id @default(cuid())
+  phoneNumber       String        @unique
+  firstName         String
+  lastName          String
+  pinHash           String?
+  preferredLanguage String        @default("en")
+  isActive          Boolean       @default(true)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  business          Business?
+  transactions      Transaction[]
+  passport          Passport?
+}
+
+model Business {
+  id           String        @id @default(cuid())
+  merchantId   String        @unique
+  tradingName  String
+  category     String        @default("general_retail")
+  city         String        @default("")
+  province     String        @default("")
+  description  String?
+  isActive     Boolean       @default(true)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  merchant     Merchant      @relation(fields: [merchantId], references: [id])
+  transactions Transaction[]
+  passport     Passport?
+}
+
+model Transaction {
+  id              String   @id @default(cuid())
+  businessId      String
+  merchantId      String
+  type            String   @default("sale")
+  channel         String   @default("app")
+  paymentMethod   String   @default("cash")
+  amount          Float
+  description     String?
+  categoryTag     String?
+  trustLevel      String   @default("self_recorded")
+  transactionDate DateTime @default(now())
+  isDeleted       Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  business        Business @relation(fields: [businessId], references: [id])
+  merchant        Merchant @relation(fields: [merchantId], references: [id])
+}
+
+model Passport {
+  id                  String   @id @default(cuid())
+  merchantId          String   @unique
+  businessId          String   @unique
+  passportNumber      String   @unique
+  healthScore         Int      @default(0)
+  totalRevenue30d     Float    @default(0)
+  totalRevenue90d     Float    @default(0)
+  totalRevenue365d    Float    @default(0)
+  transactionCount30d Int      @default(0)
+  avgDailyRevenue     Float    @default(0)
+  pctCash             Float    @default(100)
+  pctDigital          Float    @default(0)
+  consistencyScore    Int      @default(0)
+  volumeScore         Int      @default(0)
+  longevityScore      Int      @default(0)
+  verificationLevel   String   @default("self_recorded")
+  operatingDays       Int      @default(0)
+  generatedAt         DateTime @default(now())
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  merchant            Merchant @relation(fields: [merchantId], references: [id])
+  business            Business @relation(fields: [businessId], references: [id])
+}

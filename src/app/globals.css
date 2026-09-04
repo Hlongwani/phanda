@@ -1,26 +1,114 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --amber: #F59E0B;
+  --amber-dark: #D97706;
+  --navy: #0F172A;
+  --navy-mid: #1E293B;
+  --bg: #F8FAFC;
+  --surface: #FFFFFF;
+  --surface-2: #F3F4F6;
+  --text: #111827;
+  --text-muted: #6B7280;
+  --border: #E5E7EB;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+html.dark {
+  --bg: #0F172A;
+  --surface: #1E293B;
+  --surface-2: #0F172A;
+  --text: #F1F5F9;
+  --text-muted: #94A3B8;
+  --border: #334155;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html.dark body { background: var(--bg); }
+
+* {
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.phone-frame {
+  max-width: 390px;
+  min-height: 100dvh;
+  margin: 0 auto;
+  background: white;
+  position: relative;
+  overflow-x: hidden;
+}
+
+@media (min-width: 640px) {
+  body {
+    background: #E2E8F0;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 24px 0;
+  }
+  .phone-frame {
+    min-height: calc(100dvh - 48px);
+    border-radius: 32px;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.2);
+    overflow: hidden;
+  }
+}
+
+.amber-btn {
+  background: #F59E0B;
+  color: white;
+  font-weight: 700;
+  border-radius: 14px;
+  padding: 16px 24px;
+  width: 100%;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.amber-btn:hover { background: #D97706; }
+.amber-btn:disabled { background: #D1D5DB; cursor: not-allowed; }
+
+.ghost-btn {
+  background: transparent;
+  color: #F59E0B;
+  font-weight: 600;
+  border-radius: 14px;
+  padding: 16px 24px;
+  width: 100%;
+  font-size: 16px;
+  border: 2px solid #F59E0B;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.ghost-btn:hover { background: #FEF3C7; }
+
+.card {
+  background: var(--surface);
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+html.dark .card {
+  box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+}
+
+.stat-tile {
+  background: var(--surface);
+  border-radius: 14px;
+  padding: 14px 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  text-align: center;
+}
+
+html.dark .phone-frame { background: var(--bg); }
+
+input[type="number"], input[type="tel"], input[type="text"] {
+  font-size: 16px; /* prevents iOS zoom */
 }

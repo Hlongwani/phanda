@@ -39,3 +39,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# sqlite database
+*.db
+*.db-shm
+*.db-wal
+
+# claude-flow
+.claude-flow/
+**/.claude-flow/
