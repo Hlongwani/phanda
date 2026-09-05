@@ -2,8 +2,8 @@ const AT_USERNAME = process.env.AT_USERNAME;
 const AT_API_KEY = process.env.AT_API_KEY;
 
 export async function sendSMS(to: string, message: string): Promise<{ sent: boolean; demo: boolean }> {
-  // If env vars not set, return demo mode — caller shows OTP on screen
-  if (!AT_API_KEY || !AT_USERNAME) {
+  // If env vars not set or using sandbox, return demo mode — caller shows OTP on screen
+  if (!AT_API_KEY || !AT_USERNAME || AT_USERNAME === 'sandbox') {
     return { sent: false, demo: true };
   }
 
@@ -19,7 +19,6 @@ export async function sendSMS(to: string, message: string): Promise<{ sent: bool
         username: AT_USERNAME,
         to,
         message,
-        from: 'PHANDA',
       }).toString(),
     });
 
