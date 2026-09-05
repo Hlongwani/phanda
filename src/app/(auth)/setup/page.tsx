@@ -125,7 +125,7 @@ export default function SetupPage() {
             </div>
             <div className="mt-auto pb-8 flex gap-3">
               <button onClick={() => setStep(0)} className="ghost-btn flex-shrink-0 w-auto px-6">Back</button>
-              <button onClick={() => setStep(2)} disabled={!businessName || !category} className="amber-btn">Next</button>
+              <button onClick={() => setStep(2)} disabled={!businessName || !category} className="amber-btn flex-1" style={{width: 'auto'}}>Next</button>
             </div>
           </>
         )}
@@ -160,7 +160,7 @@ export default function SetupPage() {
             {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
             <div className="mt-auto pb-8 flex gap-3">
               <button onClick={() => setStep(1)} className="ghost-btn flex-shrink-0 w-auto px-6">Back</button>
-              <button onClick={register} disabled={!city || !province || loading} className="amber-btn">
+              <button onClick={register} disabled={!city || !province || loading} className="amber-btn flex-1" style={{width: 'auto'}}>
                 {loading ? 'Creating your passport...' : 'Save my business'}
               </button>
             </div>
