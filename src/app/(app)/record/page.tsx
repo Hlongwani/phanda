@@ -24,7 +24,7 @@ const EXPENSE_CATEGORIES = [
   { id: 'other_expense', icon: '💼', label: 'Other', sub: 'Anything else' },
 ];
 
-const SALE_TAGS = ['Bread', 'Airtime', 'Cooldrink', 'Snacks', 'Cigarettes', 'Clothing', 'Vegetables', 'Soap'];
+const SALE_TAGS = ['Haircut', 'Colour', 'Braids', 'Weave', 'Nails', 'Blowout', 'Treatment', 'Airtime', 'Snacks', 'Bread', 'Cooldrink', 'Soap'];
 
 const ENCOURAGEMENTS = [
   (n: number) => `That's sale #${n} today. Keep going! 🚀`,
@@ -43,6 +43,8 @@ export default function RecordPage() {
   const [customDesc, setCustomDesc] = useState('');
   const [loading, setLoading] = useState(false);
   const [confirmed, setConfirmed] = useState(false);
+  const [queued, setQueued] = useState(false);
+  const [receiptUrl, setReceiptUrl] = useState('');
   const [todaySalesCount, setTodaySalesCount] = useState(1);
   const router = useRouter();
 
@@ -78,23 +80,53 @@ export default function RecordPage() {
   async function submit() {
     setLoading(true);
     const description = [...tags, customDesc].filter(Boolean).join(', ');
-    const res = await apiFetch('/api/transactions', {
-      method: 'POST',
-      body: JSON.stringify({
-        amount: parseFloat(amount),
-        type: mode,
-        paymentMethod: mode === 'sale' ? (method === 'mixed' ? 'cash' : method) : 'cash',
-        description: description || null,
-        categoryTag: mode === 'sale' ? (tags[0] || null) : expenseCat,
-      }),
-    });
-    if (res.ok) { setConfirmed(true); setLoading(false); }
-    else { setLoading(false); alert('Failed to record. Try again.'); }
+    const payload = {
+      amount: parseFloat(amount),
+      type: mode,
+      paymentMethod: mode === 'sale' ? (method === 'mixed' ? 'cash' : method) : 'cash',
+      description: description || null,
+      categoryTag: mode === 'sale' ? (tags[0] || null) : expenseCat,
+    };
+
+    try {
+      const res = await apiFetch('/api/transactions', { method: 'POST', body: JSON.stringify(payload) });
+      if (res.ok) {
+        const data = await res.json();
+        setReceiptUrl(data.receiptUrl || '');
+        setConfirmed(true);
+      } else {
+        alert('Failed to record. Try again.');
+      }
+    } catch {
+      // Offline — queue locally
+      const q = JSON.parse(localStorage.getItem('phanda_offline_queue') || '[]');
+      q.push({ ...payload, queuedAt: new Date().toISOString() });
+      localStorage.setItem('phanda_offline_queue', JSON.stringify(q));
+      setQueued(true);
+      setConfirmed(true);
+    }
+    setLoading(false);
+  }
+
+  // Flush offline queue when back online
+  if (typeof window !== 'undefined') {
+    window.addEventListener('online', async () => {
+      const q = JSON.parse(localStorage.getItem('phanda_offline_queue') || '[]');
+      if (!q.length) return;
+      const remaining = [];
+      for (const item of q) {
+        try {
+          const res = await apiFetch('/api/transactions', { method: 'POST', body: JSON.stringify(item) });
+          if (!res.ok) remaining.push(item);
+        } catch { remaining.push(item); }
+      }
+      localStorage.setItem('phanda_offline_queue', JSON.stringify(remaining));
+    }, { once: true });
   }
 
   function reset() {
     setAmount(''); setMethod(''); setExpenseCat(''); setTags([]); setCustomDesc('');
-    setStep('amount'); setConfirmed(false);
+    setStep('amount'); setConfirmed(false); setQueued(false); setReceiptUrl('');
     if (mode === 'sale') setTodaySalesCount(c => c + 1);
   }
 
@@ -102,27 +134,49 @@ export default function RecordPage() {
     const isSale = mode === 'sale';
     const msg = isSale ? ENCOURAGEMENTS[Math.floor(Math.random() * ENCOURAGEMENTS.length)](todaySalesCount) : '💡 Tracking expenses keeps your profit accurate.';
     const catLabel = EXPENSE_CATEGORIES.find(c => c.id === expenseCat)?.label || expenseCat;
+    const whatsappText = receiptUrl
+      ? `Here's your receipt from my business: ${receiptUrl}`
+      : `Receipt\n\nAmount: R ${parseFloat(amount).toFixed(2)}\nPayment: ${method}\n${tags.length > 0 ? 'Items: ' + tags.join(', ') + '\n' : ''}${customDesc ? 'Note: ' + customDesc + '\n' : ''}\nDate: ${new Date().toLocaleDateString('en-ZA')}\nThank you! 🙏`;
+
     return (
-      <div className={`min-h-screen flex flex-col items-center justify-center px-6 text-center ${isSale ? 'bg-amber-500' : 'bg-slate-700'}`}>
-        <div className="text-7xl mb-4 animate-bounce">{isSale ? '✅' : '📝'}</div>
-        <h2 className="text-white text-3xl font-black mb-2">{isSale ? 'Sale recorded!' : 'Expense recorded!'}</h2>
+      <div className={`min-h-screen flex flex-col items-center justify-center px-6 text-center ${queued ? 'bg-slate-600' : isSale ? 'bg-amber-500' : 'bg-slate-700'}`}>
+        <div className="text-7xl mb-4 animate-bounce">{queued ? '📶' : isSale ? '✅' : '📝'}</div>
+        <h2 className="text-white text-3xl font-black mb-2">
+          {queued ? 'Saved offline!' : isSale ? 'Sale recorded!' : 'Expense recorded!'}
+        </h2>
         <div className="text-white text-5xl font-black mb-2">R {parseFloat(amount).toFixed(0)}</div>
         <div className="text-white/80 text-lg mb-4 capitalize">{isSale ? method : catLabel}</div>
-        <div className="bg-white/20 rounded-2xl px-5 py-4 mb-10 max-w-xs">
-          <p className="text-white font-medium">{msg}</p>
-        </div>
+        {queued ? (
+          <div className="bg-white/20 rounded-2xl px-5 py-4 mb-10 max-w-xs">
+            <p className="text-white font-medium">No connection — this will sync automatically when you&apos;re back online. 🔄</p>
+          </div>
+        ) : (
+          <div className="bg-white/20 rounded-2xl px-5 py-4 mb-10 max-w-xs">
+            <p className="text-white font-medium">{msg}</p>
+          </div>
+        )}
         <div className="w-full space-y-3">
           <button onClick={reset} className="w-full bg-white text-amber-500 font-bold rounded-2xl py-4 text-lg">
             Record another
           </button>
-          {isSale && (
-            <a
-              href={`https://wa.me/?text=${encodeURIComponent(`Receipt\n\nAmount: R ${parseFloat(amount).toFixed(2)}\nPayment: ${method}\n${tags.length > 0 ? 'Items: ' + tags.join(', ') + '\n' : ''}${customDesc ? 'Note: ' + customDesc + '\n' : ''}\nDate: ${new Date().toLocaleDateString('en-ZA')}\nThank you! 🙏`)}`}
-              target="_blank" rel="noopener noreferrer"
-              className="w-full bg-white/20 text-white font-bold rounded-2xl py-4 text-lg flex items-center justify-center gap-2 border border-white/30"
-            >
-              📱 Send WhatsApp Receipt
-            </a>
+          {isSale && !queued && (
+            <>
+              {receiptUrl && (
+                <button
+                  onClick={() => { navigator.clipboard?.writeText(receiptUrl); alert('Receipt link copied!'); }}
+                  className="w-full bg-white/20 text-white font-bold rounded-2xl py-4 text-lg flex items-center justify-center gap-2 border border-white/30"
+                >
+                  🔗 Copy Receipt Link
+                </button>
+              )}
+              <a
+                href={`https://wa.me/?text=${encodeURIComponent(whatsappText)}`}
+                target="_blank" rel="noopener noreferrer"
+                className="w-full bg-white/20 text-white font-bold rounded-2xl py-4 text-lg flex items-center justify-center gap-2 border border-white/30"
+              >
+                📱 Send WhatsApp Receipt
+              </a>
+            </>
           )}
           <button onClick={() => router.push('/dashboard')} className="w-full text-white/80 font-medium py-3">
             Back to Home

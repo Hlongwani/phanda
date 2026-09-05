@@ -31,7 +31,8 @@ export async function POST(req: NextRequest) {
     recalculatePassport(user.merchantId, user.businessId);
 
     const transaction = db.prepare('SELECT * FROM transactions WHERE id = ?').get(id);
-    return NextResponse.json({ transaction }, { status: 201 });
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || '';
+    return NextResponse.json({ transaction, receiptUrl: `${baseUrl}/receipt/${id}` }, { status: 201 });
   } catch (err) {
     console.error(err);
     return NextResponse.json({ error: 'Failed to record transaction' }, { status: 500 });
