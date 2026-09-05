@@ -34,5 +34,10 @@ export async function apiFetch(path: string, options: RequestInit = {}) {
       ...(options.headers || {}),
     },
   });
+  // Token expired or invalid — clear and redirect to login
+  if (res.status === 401) {
+    clearAuth();
+    if (typeof window !== 'undefined') window.location.href = '/phone';
+  }
   return res;
 }
