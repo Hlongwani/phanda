@@ -123,9 +123,9 @@ export default function SetupPage() {
                 </button>
               ))}
             </div>
-            <div className="mt-auto pb-8 flex gap-3">
-              <button onClick={() => setStep(0)} className="ghost-btn flex-shrink-0 w-auto px-6">Back</button>
-              <button onClick={() => setStep(2)} disabled={!businessName || !category} className="amber-btn flex-1" style={{width: 'auto'}}>Next</button>
+            <div className="mt-auto pb-8 flex flex-col gap-3">
+              <button onClick={() => setStep(2)} disabled={!businessName || !category} className="amber-btn">Next</button>
+              <button onClick={() => setStep(0)} className="ghost-btn">Back</button>
             </div>
           </>
         )}
@@ -158,11 +158,11 @@ export default function SetupPage() {
               </div>
             </div>
             {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
-            <div className="mt-auto pb-8 flex gap-3">
-              <button onClick={() => setStep(1)} className="ghost-btn flex-shrink-0 w-auto px-6">Back</button>
-              <button onClick={register} disabled={!city || !province || loading} className="amber-btn flex-1" style={{width: 'auto'}}>
+            <div className="mt-auto pb-8 flex flex-col gap-3">
+              <button onClick={register} disabled={!city || !province || loading} className="amber-btn">
                 {loading ? 'Creating your passport...' : 'Save my business'}
               </button>
+              <button onClick={() => setStep(1)} className="ghost-btn">Back</button>
             </div>
           </>
         )}
