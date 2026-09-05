@@ -71,6 +71,7 @@ body {
   cursor: pointer;
   transition: background 0.15s;
 }
+.amber-btn.flex-1 { width: auto; }
 .amber-btn:hover { background: #D97706; }
 .amber-btn:disabled { background: #D1D5DB; cursor: not-allowed; }
 
