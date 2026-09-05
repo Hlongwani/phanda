@@ -13,12 +13,21 @@ interface InsightsData {
   heatmap: Array<{ date: string; total: number }>;
 }
 
+interface CashFlowData {
+  byDayOfWeek: Array<{ day: string; revenue: number; count: number }>;
+  bestDay: string | null;
+  slowestDay: string | null;
+  bestHour: number | null;
+  peakTime: string | null;
+}
+
 const PIE_COLORS = ['#F59E0B', '#3B82F6', '#10B981', '#8B5CF6'];
 
 export default function InsightsPage() {
   const [period, setPeriod] = useState<Period>('30');
   const [data, setData] = useState<InsightsData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [cashFlow, setCashFlow] = useState<CashFlowData | null>(null);
 
   useEffect(() => {
     setLoading(true);
@@ -27,6 +36,13 @@ export default function InsightsPage() {
       .then(d => { if (d) setData(d); setLoading(false); })
       .catch(() => setLoading(false));
   }, [period]);
+
+  useEffect(() => {
+    apiFetch('/api/cashflow')
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d) setCashFlow(d); })
+      .catch(() => {});
+  }, []);
 
   // Build last 30-day heatmap array
   function buildHeatmap() {
@@ -120,6 +136,65 @@ export default function InsightsPage() {
               <div className="text-gray-400 text-xs mt-0.5">Est. Profit</div>
             </div>
           </div>
+
+          {/* Cash Flow Calendar */}
+          {cashFlow && cashFlow.byDayOfWeek.some(d => d.count > 0) && (() => {
+            const maxRev = Math.max(...cashFlow.byDayOfWeek.map(d => d.revenue), 1);
+            return (
+              <div className="card">
+                <h3 className="text-gray-800 font-semibold text-sm mb-1">Cash Flow Calendar</h3>
+                <p className="text-gray-400 text-xs mb-3">Revenue by day of week — last 90 days</p>
+
+                {/* Summary chips */}
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {cashFlow.bestDay && (
+                    <span className="bg-amber-100 text-amber-700 text-xs font-semibold px-3 py-1.5 rounded-full">
+                      Busiest day: {cashFlow.bestDay}
+                    </span>
+                  )}
+                  {cashFlow.peakTime && (
+                    <span className="bg-amber-100 text-amber-700 text-xs font-semibold px-3 py-1.5 rounded-full">
+                      Peak time: {cashFlow.peakTime}
+                    </span>
+                  )}
+                  {cashFlow.slowestDay && cashFlow.slowestDay !== cashFlow.bestDay && (
+                    <span className="bg-gray-100 text-gray-500 text-xs font-semibold px-3 py-1.5 rounded-full">
+                      Quietest day: {cashFlow.slowestDay}
+                    </span>
+                  )}
+                </div>
+
+                {/* Horizontal bar chart */}
+                <div className="space-y-2">
+                  {cashFlow.byDayOfWeek.map(({ day, revenue, count }) => {
+                    const isBest = day === cashFlow.bestDay;
+                    const isSlowest = day === cashFlow.slowestDay && day !== cashFlow.bestDay;
+                    const widthPct = maxRev > 0 ? (revenue / maxRev) * 100 : 0;
+                    return (
+                      <div key={day} className="flex items-center gap-2">
+                        <span className={`text-xs font-semibold w-7 shrink-0 ${isBest ? 'text-amber-600' : isSlowest ? 'text-gray-400' : 'text-gray-500'}`}>
+                          {day}
+                        </span>
+                        <div className="flex-1 h-6 bg-gray-100 rounded-full overflow-hidden">
+                          {count > 0 && (
+                            <div
+                              className={`h-full rounded-full transition-all duration-500 ${
+                                isBest ? 'bg-amber-500' : isSlowest ? 'bg-gray-300' : 'bg-amber-300'
+                              }`}
+                              style={{ width: `${Math.max(widthPct, 2)}%` }}
+                            />
+                          )}
+                        </div>
+                        <span className={`text-xs w-16 text-right shrink-0 ${isBest ? 'text-amber-600 font-semibold' : 'text-gray-400'}`}>
+                          {count > 0 ? `R${revenue.toFixed(0)}` : '—'}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })()}
 
           {/* Bar chart */}
           {barData.length > 0 && (

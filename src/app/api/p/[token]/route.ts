@@ -13,5 +13,9 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ tok
   const business = db.prepare('SELECT trading_name, category, city, province FROM businesses WHERE merchant_id = ?').get(merchantId) as { trading_name: string; category: string; city: string; province: string };
   const passport = db.prepare('SELECT passport_number, health_score, verification_level, total_revenue_30d, operating_days, pct_cash, pct_digital, consistency_score, volume_score, longevity_score, created_at FROM passports WHERE merchant_id = ?').get(merchantId) as Record<string, unknown>;
 
-  return NextResponse.json({ merchant, business, passport });
+  const { count: verificationCount } = db.prepare(
+    'SELECT COUNT(*) as count FROM verifications WHERE verified_merchant_id = ?'
+  ).get(merchantId) as { count: number };
+
+  return NextResponse.json({ merchant, business, passport, verificationCount });
 }

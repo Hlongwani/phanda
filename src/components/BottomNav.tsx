@@ -14,6 +14,7 @@ const moreItems = [
   { href: '/insights', icon: ChartIcon, label: 'Insights', color: 'bg-purple-100 text-purple-600' },
   { href: '/laybys', icon: LaybyIcon, label: 'Laybys', color: 'bg-blue-100 text-blue-600' },
   { href: '/credit', icon: CreditIcon, label: 'Credit Book', color: 'bg-green-100 text-green-600' },
+  { href: '/customers', icon: UsersIcon, label: 'Customers', color: 'bg-amber-100 text-amber-600' },
   { href: '/settings', icon: SettingsIcon, label: 'Settings', color: 'bg-gray-100 text-gray-600' },
 ];
 
@@ -162,6 +163,14 @@ function SettingsIcon({ size }: { size: number }) {
     <svg width={size} height={size} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
       <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
       <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+    </svg>
+  );
+}
+
+function UsersIcon({ size }: { size: number }) {
+  return (
+    <svg width={size} height={size} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a4 4 0 00-5-3.87M9 20H4v-2a4 4 0 015-3.87m6-4a4 4 0 11-8 0 4 4 0 018 0zm6 0a4 4 0 11-2-3.46" />
     </svg>
   );
 }

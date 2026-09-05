@@ -8,6 +8,7 @@ interface PassportData {
     total_revenue_30d: number; operating_days: number; pct_cash: number; pct_digital: number;
     consistency_score: number; volume_score: number; longevity_score: number; created_at: string;
   };
+  verificationCount: number;
 }
 
 async function getData(token: string): Promise<PassportData | null> {
@@ -24,7 +25,7 @@ export default async function PublicPassportPage({ params }: { params: Promise<{
   const data = await getData(token);
   if (!data) notFound();
 
-  const { merchant, business, passport } = data;
+  const { merchant, business, passport, verificationCount } = data;
   const memberSince = new Date(passport.created_at).toLocaleDateString('en-ZA', { month: 'long', year: 'numeric' });
   const scoreColor = passport.health_score >= 70 ? '#10B981' : passport.health_score >= 50 ? '#F59E0B' : '#EF4444';
   const r = 42, circ = 2 * Math.PI * r, fill = (passport.health_score / 100) * circ;
@@ -67,13 +68,23 @@ export default async function PublicPassportPage({ params }: { params: Promise<{
             <div style={{ color: '#64748B', fontSize: 12 }}>Member since {memberSince}</div>
           </div>
 
-          <div style={{
-            display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 20, fontSize: 12, fontWeight: 600,
-            background: passport.verification_level === 'financially_verified' ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)',
-            color: passport.verification_level === 'financially_verified' ? '#10B981' : '#F59E0B',
-          }}>
-            {passport.verification_level === 'financially_verified' ? '✓' : '◌'}
-            {passport.verification_level.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+            <div style={{
+              display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 20, fontSize: 12, fontWeight: 600,
+              background: passport.verification_level === 'financially_verified' ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)',
+              color: passport.verification_level === 'financially_verified' ? '#10B981' : '#F59E0B',
+            }}>
+              {passport.verification_level === 'financially_verified' ? '✓' : '◌'}
+              {passport.verification_level.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
+            </div>
+            {verificationCount > 0 && (
+              <div style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 20, fontSize: 12, fontWeight: 600,
+                background: 'rgba(245,158,11,0.15)', color: '#F59E0B',
+              }}>
+                🛡 {verificationCount} peer {verificationCount === 1 ? 'verification' : 'verifications'}
+              </div>
+            )}
           </div>
         </div>
 
@@ -104,6 +115,51 @@ export default async function PublicPassportPage({ params }: { params: Promise<{
             <div style={{ color: '#64748B', fontSize: 12, marginTop: 4 }}>
               {passport.health_score >= 70 ? '✅ Finance-Ready' : passport.health_score >= 50 ? '⏳ Building History' : '🌱 Early Stage'}
             </div>
+          </div>
+        </div>
+
+        {/* Community Verification */}
+        <div style={{ background: '#1E293B', borderRadius: 16, margin: '0 20px 20px', padding: 20, border: '1px solid #334155' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+            <span style={{ fontSize: 24 }}>🛡</span>
+            <div>
+              <div style={{ color: 'white', fontWeight: 700, fontSize: 14 }}>Community Verification</div>
+              <div style={{ color: '#64748B', fontSize: 11 }}>Peer-verified by other businesses</div>
+            </div>
+          </div>
+
+          {verificationCount > 0 ? (
+            <div style={{
+              display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 16px', borderRadius: 12,
+              background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.3)',
+            }}>
+              <span style={{ fontSize: 20 }}>🏅</span>
+              <div>
+                <div style={{ color: '#F59E0B', fontWeight: 700, fontSize: 16 }}>{verificationCount}</div>
+                <div style={{ color: '#94A3B8', fontSize: 11 }}>
+                  Verified by {verificationCount} {verificationCount === 1 ? 'business' : 'businesses'} in the community
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div style={{ color: '#64748B', fontSize: 13, fontStyle: 'italic' }}>
+              Be the first to verify this business
+            </div>
+          )}
+
+          <div style={{ marginTop: 16 }}>
+            <a
+              href={`https://phanda-production.up.railway.app/?verify=${passport.passport_number}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 20px',
+                background: '#F59E0B', borderRadius: 12, color: 'white', fontWeight: 700,
+                fontSize: 13, textDecoration: 'none',
+              }}
+            >
+              🛡 Verify this business
+            </a>
           </div>
         </div>
 

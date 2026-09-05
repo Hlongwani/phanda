@@ -41,6 +41,7 @@ export default function RecordPage() {
   const [expenseCat, setExpenseCat] = useState('');
   const [tags, setTags] = useState<string[]>([]);
   const [customDesc, setCustomDesc] = useState('');
+  const [customerName, setCustomerName] = useState('');
   const [loading, setLoading] = useState(false);
   const [confirmed, setConfirmed] = useState(false);
   const [queued, setQueued] = useState(false);
@@ -56,6 +57,7 @@ export default function RecordPage() {
     setExpenseCat('');
     setTags([]);
     setCustomDesc('');
+    setCustomerName('');
   }
 
   function handleKey(val: string) {
@@ -86,6 +88,7 @@ export default function RecordPage() {
       paymentMethod: mode === 'sale' ? (method === 'mixed' ? 'cash' : method) : 'cash',
       description: description || null,
       categoryTag: mode === 'sale' ? (tags[0] || null) : expenseCat,
+      customerName: customerName.trim() || null,
     };
 
     try {
@@ -125,7 +128,7 @@ export default function RecordPage() {
   }
 
   function reset() {
-    setAmount(''); setMethod(''); setExpenseCat(''); setTags([]); setCustomDesc('');
+    setAmount(''); setMethod(''); setExpenseCat(''); setTags([]); setCustomDesc(''); setCustomerName('');
     setStep('amount'); setConfirmed(false); setQueued(false); setReceiptUrl('');
     if (mode === 'sale') setTodaySalesCount(c => c + 1);
   }
@@ -335,8 +338,17 @@ export default function RecordPage() {
             value={customDesc}
             onChange={e => setCustomDesc(e.target.value)}
             placeholder="Add a note..."
-            className="w-full border-2 border-gray-200 rounded-2xl px-4 py-3 outline-none focus:border-amber-500 transition-colors mb-auto"
+            className="w-full border-2 border-gray-200 rounded-2xl px-4 py-3 outline-none focus:border-amber-500 transition-colors mb-4"
           />
+          {mode === 'sale' && (
+            <input
+              type="text"
+              value={customerName}
+              onChange={e => setCustomerName(e.target.value)}
+              placeholder="Customer name (optional)"
+              className="w-full border-2 border-gray-200 rounded-2xl px-4 py-3 outline-none focus:border-amber-500 transition-colors mb-auto"
+            />
+          )}
           <div className="py-4">
             <button onClick={submit} disabled={loading} className="amber-btn">
               {loading ? 'Recording...' : `Record ${mode === 'sale' ? 'Sale' : 'Expense'}`}

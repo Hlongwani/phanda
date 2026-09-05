@@ -17,6 +17,9 @@ export function getDb(): Database.Database {
 }
 
 function initSchema(db: Database.Database) {
+  // Add columns introduced after initial deploy — safe to run repeatedly
+  try { db.exec('ALTER TABLE transactions ADD COLUMN customer_name TEXT'); } catch {}
+
   db.exec(`
     CREATE TABLE IF NOT EXISTS merchants (
       id TEXT PRIMARY KEY,
@@ -122,6 +125,27 @@ function initSchema(db: Database.Database) {
       note TEXT,
       paid_at TEXT DEFAULT (datetime('now')),
       FOREIGN KEY (credit_id) REFERENCES credit_accounts(id)
+    );
+
+    CREATE TABLE IF NOT EXISTS customers (
+      id TEXT PRIMARY KEY,
+      merchant_id TEXT NOT NULL,
+      name TEXT NOT NULL,
+      phone TEXT,
+      notes TEXT,
+      created_at TEXT DEFAULT (datetime('now')),
+      FOREIGN KEY (merchant_id) REFERENCES merchants(id)
+    );
+
+    CREATE TABLE IF NOT EXISTS verifications (
+      id TEXT PRIMARY KEY,
+      verifier_merchant_id TEXT NOT NULL,
+      verified_merchant_id TEXT NOT NULL,
+      note TEXT,
+      created_at TEXT DEFAULT (datetime('now')),
+      UNIQUE(verifier_merchant_id, verified_merchant_id),
+      FOREIGN KEY (verifier_merchant_id) REFERENCES merchants(id),
+      FOREIGN KEY (verified_merchant_id) REFERENCES merchants(id)
     );
 
     CREATE TABLE IF NOT EXISTS passports (

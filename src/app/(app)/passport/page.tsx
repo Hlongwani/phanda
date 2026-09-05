@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { apiFetch } from '@/lib/client';
+import Link from 'next/link';
 
 interface PassportData {
   passport: {
@@ -27,6 +28,7 @@ interface PassportData {
   monthsSince: number;
   badges: Array<{ id: string; label: string; icon: string; achieved: boolean }>;
   verificationLevels: Array<{ label: string; achieved: boolean }>;
+  verificationCount: number;
 }
 
 function ScoreBar({ label, score, color = 'bg-amber-500' }: { label: string; score: number; color?: string }) {
@@ -74,7 +76,7 @@ export default function PassportPage() {
     </div>
   );
 
-  const { passport, business, merchant, monthsSince, badges, verificationLevels } = data;
+  const { passport, business, merchant, monthsSince, badges, verificationLevels, verificationCount } = data;
   const memberSince = new Date(passport.created_at).toLocaleDateString('en-ZA', { month: 'long', year: 'numeric' });
 
   return (
@@ -121,14 +123,22 @@ export default function PassportPage() {
             <p className="text-gray-500 text-xs mt-1">{business.city}, {business.province} · Member since {memberSince}</p>
           </div>
 
-          {/* Verification badge */}
-          <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold ${
-            passport.verification_level === 'financially_verified' ? 'bg-emerald-900 text-emerald-400' :
-            passport.verification_level === 'partially_verified' ? 'bg-blue-900 text-blue-400' :
-            'bg-amber-900 text-amber-400'
-          }`}>
-            <span>{passport.verification_level === 'financially_verified' ? '✓' : passport.verification_level === 'partially_verified' ? '◑' : '◌'}</span>
-            <span>{passport.verification_level.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}</span>
+          {/* Verification badge + community trust */}
+          <div className="flex flex-wrap items-center gap-2">
+            <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold ${
+              passport.verification_level === 'financially_verified' ? 'bg-emerald-900 text-emerald-400' :
+              passport.verification_level === 'partially_verified' ? 'bg-blue-900 text-blue-400' :
+              'bg-amber-900 text-amber-400'
+            }`}>
+              <span>{passport.verification_level === 'financially_verified' ? '✓' : passport.verification_level === 'partially_verified' ? '◑' : '◌'}</span>
+              <span>{passport.verification_level.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}</span>
+            </div>
+            {verificationCount > 0 && (
+              <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-amber-900 text-amber-400">
+                <span>🛡</span>
+                <span>{verificationCount} peer {verificationCount === 1 ? 'verification' : 'verifications'}</span>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -220,6 +230,30 @@ export default function PassportPage() {
           </div>
         </div>
 
+        {/* Community Verified */}
+        <div className="card">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-2xl bg-amber-50 flex items-center justify-center text-xl flex-shrink-0">🛡</div>
+            <div>
+              <h3 className="text-gray-900 font-bold text-sm">Community Verified</h3>
+              <p className="text-gray-400 text-xs">Verified by other Phanda businesses</p>
+            </div>
+          </div>
+          {verificationCount > 0 ? (
+            <div className="flex items-center gap-3 bg-amber-50 rounded-xl p-3 border border-amber-100">
+              <span className="text-3xl">🏅</span>
+              <div>
+                <div className="text-2xl font-black text-amber-600">{verificationCount}</div>
+                <div className="text-gray-500 text-xs">
+                  {verificationCount === 1 ? 'business has' : 'businesses have'} verified you in the community
+                </div>
+              </div>
+            </div>
+          ) : (
+            <p className="text-gray-400 text-sm">No community verifications yet. Share your passport so other businesses can verify you.</p>
+          )}
+        </div>
+
         {/* Credit Readiness */}
         {(() => {
           const steps = [
@@ -264,6 +298,12 @@ export default function PassportPage() {
           <p className="text-white font-bold mb-1">Share your Passport</p>
           <p className="text-gray-400 text-sm mb-4">Let lenders, suppliers and markets see your trading history</p>
           <div className="grid grid-cols-2 gap-3">
+            <Link
+              href="/passport/print"
+              className="col-span-2 bg-slate-700 text-white font-bold rounded-xl px-4 py-3 text-sm flex items-center justify-center gap-2"
+            >
+              🖨️ Print Passport
+            </Link>
             <button
               onClick={async () => {
                 const link = await getShareLink();

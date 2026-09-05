@@ -33,12 +33,17 @@ export async function GET(req: NextRequest) {
 
     const badges = computeBadges(db, user.merchantId, passport);
 
+    const { count: verificationCount } = db.prepare(
+      'SELECT COUNT(*) as count FROM verifications WHERE verified_merchant_id = ?'
+    ).get(user.merchantId) as { count: number };
+
     return NextResponse.json({
       passport,
       business,
       merchant,
       monthsSince,
       badges,
+      verificationCount,
       verificationLevels: [
         { label: 'Identity Verified', achieved: true },
         { label: '30 Days Active', achieved: (passport.operating_days as number) >= 30 },

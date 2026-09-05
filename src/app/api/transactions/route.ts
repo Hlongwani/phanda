@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   try {
-    const { amount, type = 'sale', paymentMethod = 'cash', description, categoryTag } = await req.json();
+    const { amount, type = 'sale', paymentMethod = 'cash', description, categoryTag, customerName } = await req.json();
 
     if (!amount || amount <= 0) {
       return NextResponse.json({ error: 'Invalid amount' }, { status: 400 });
@@ -24,9 +24,9 @@ export async function POST(req: NextRequest) {
     const id = generateId();
 
     db.prepare(`
-      INSERT INTO transactions (id, business_id, merchant_id, type, payment_method, amount, description, category_tag, channel)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'app')
-    `).run(id, user.businessId, user.merchantId, type, paymentMethod, amount, description || null, categoryTag || null);
+      INSERT INTO transactions (id, business_id, merchant_id, type, payment_method, amount, description, category_tag, channel, customer_name)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'app', ?)
+    `).run(id, user.businessId, user.merchantId, type, paymentMethod, amount, description || null, categoryTag || null, customerName?.trim() || null);
 
     recalculatePassport(user.merchantId, user.businessId);
 
