@@ -45,14 +45,17 @@ export default function OTPPage() {
       body: JSON.stringify({ phoneNumber: phone, otp }),
     });
 
+    const isNewUser = localStorage.getItem('phanda_new_user') === '1';
+
     if (res.ok) {
       const data = await res.json();
-      setToken(data.token);
-      setUser({ merchant: data.merchant, business: data.business });
-      router.push('/dashboard');
-    } else if (res.status === 404) {
-      // New user — go to setup
-      router.push('/setup');
+      if (isNewUser) {
+        router.push('/setup');
+      } else {
+        setToken(data.token);
+        setUser({ merchant: data.merchant, business: data.business });
+        router.push('/dashboard');
+      }
     } else {
       setError(hint ? `Invalid code. ${hint}` : 'Invalid or expired code. Please try again.');
       setLoading(false);

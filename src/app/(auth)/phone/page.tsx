@@ -28,11 +28,12 @@ export default function PhonePage() {
     });
 
     setLoading(false);
-    if (res.ok || res.status === 404) {
-      const data = res.ok ? await res.json() : {};
+    if (res.ok) {
+      const data = await res.json();
       localStorage.setItem('phanda_phone', e164);
       localStorage.setItem('phanda_phone_raw', formatted);
       localStorage.setItem('phanda_otp_hint', data.hint || '');
+      localStorage.setItem('phanda_new_user', data.isNewUser ? '1' : '');
       router.push('/otp');
     } else {
       setError('Something went wrong. Try again.');

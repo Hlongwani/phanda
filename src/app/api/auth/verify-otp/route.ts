@@ -30,7 +30,8 @@ export async function POST(req: NextRequest) {
     } | undefined;
 
     if (!merchant) {
-      return NextResponse.json({ error: 'Merchant not found' }, { status: 404 });
+      // New user — OTP verified but no account yet
+      return NextResponse.json({ isNewUser: true });
     }
 
     const business = db.prepare('SELECT * FROM businesses WHERE merchant_id = ?').get(merchant.id) as {
@@ -38,7 +39,7 @@ export async function POST(req: NextRequest) {
     } | undefined;
 
     if (!business) {
-      return NextResponse.json({ error: 'Business not found' }, { status: 404 });
+      return NextResponse.json({ isNewUser: true });
     }
 
     const token = signToken({
