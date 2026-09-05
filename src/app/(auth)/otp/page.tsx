@@ -8,11 +8,13 @@ export default function OTPPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [countdown, setCountdown] = useState(60);
+  const [hint, setHint] = useState('');
   const refs = [useRef<HTMLInputElement>(null), useRef<HTMLInputElement>(null), useRef<HTMLInputElement>(null), useRef<HTMLInputElement>(null), useRef<HTMLInputElement>(null)];
   const router = useRouter();
 
   useEffect(() => {
     refs[0].current?.focus();
+    setHint(localStorage.getItem('phanda_otp_hint') || '');
     const timer = setInterval(() => setCountdown(c => c > 0 ? c - 1 : 0), 1000);
     return () => clearInterval(timer);
   }, []);
@@ -52,7 +54,7 @@ export default function OTPPage() {
       // New user — go to setup
       router.push('/setup');
     } else {
-      setError('Invalid code. Use 12345 for this demo.');
+      setError(hint ? `Invalid code. ${hint}` : 'Invalid or expired code. Please try again.');
       setLoading(false);
       setDigits(['', '', '', '', '']);
       refs[0].current?.focus();
@@ -101,9 +103,11 @@ export default function OTPPage() {
         {error && <p className="text-red-500 text-sm text-center mb-2">{error}</p>}
 
         {/* Demo hint */}
-        <div className="bg-amber-50 rounded-xl px-4 py-3 mb-6 text-center">
-          <p className="text-amber-700 text-sm font-medium">Demo mode: use code <span className="font-black">12345</span></p>
-        </div>
+        {hint && (
+          <div className="bg-amber-50 rounded-xl px-4 py-3 mb-6 text-center">
+            <p className="text-amber-700 text-sm font-medium">{hint}</p>
+          </div>
+        )}
 
         {/* Countdown */}
         <p className="text-gray-400 text-sm text-center mb-2">
