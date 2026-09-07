@@ -52,13 +52,13 @@ export default function SetupPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
-      <div className="bg-amber-500 px-6 pt-14 pb-10">
+    <div className="h-screen flex flex-col bg-white overflow-hidden">
+      <div className="bg-amber-500 px-6 pt-14 pb-10 flex-shrink-0">
         <h1 className="text-white text-2xl font-bold">Set up your business</h1>
         <p className="text-amber-100 text-sm mt-1">This becomes your Digital Business Passport — it&apos;s yours forever</p>
       </div>
 
-      <div className="flex-1 px-6 pt-6 flex flex-col">
+      <div className="flex-1 px-6 pt-6 flex flex-col overflow-hidden">
         {/* Progress */}
         <div className="flex gap-2 mb-8">
           {[0, 1, 2].map(i => (
@@ -99,31 +99,33 @@ export default function SetupPage() {
 
         {step === 1 && (
           <>
-            <h2 className="text-gray-900 font-semibold text-lg mb-2">What do you call your business?</h2>
-            <p className="text-gray-400 text-sm mb-6">The name your customers know you by</p>
-            <input
-              type="text"
-              value={businessName}
-              onChange={e => setBusinessName(e.target.value)}
-              placeholder="e.g. Thandi's Kitchen"
-              className="w-full border-2 border-gray-200 rounded-2xl px-4 py-4 text-lg outline-none focus:border-amber-500 transition-colors mb-6"
-            />
-            <h2 className="text-gray-900 font-semibold text-lg mb-4">What kind of business is this?</h2>
-            <div className="grid grid-cols-2 gap-3 mb-6">
-              {CATEGORIES.map(({ id, icon, label }) => (
-                <button
-                  key={id}
-                  onClick={() => setCategory(id)}
-                  className={`flex items-center gap-3 p-3 rounded-2xl border-2 transition-all ${
-                    category === id ? 'border-amber-500 bg-amber-50' : 'border-gray-200'
-                  }`}
-                >
-                  <span className="text-2xl">{icon}</span>
-                  <span className={`text-sm font-medium text-left ${category === id ? 'text-amber-700' : 'text-gray-600'}`}>{label}</span>
-                </button>
-              ))}
+            <div className="flex-1 overflow-y-auto">
+              <h2 className="text-gray-900 font-semibold text-lg mb-2">What do you call your business?</h2>
+              <p className="text-gray-400 text-sm mb-6">The name your customers know you by</p>
+              <input
+                type="text"
+                value={businessName}
+                onChange={e => setBusinessName(e.target.value)}
+                placeholder="e.g. Thandi's Kitchen"
+                className="w-full border-2 border-gray-200 rounded-2xl px-4 py-4 text-lg outline-none focus:border-amber-500 transition-colors mb-6"
+              />
+              <h2 className="text-gray-900 font-semibold text-lg mb-4">What kind of business is this?</h2>
+              <div className="grid grid-cols-2 gap-3 pb-4">
+                {CATEGORIES.map(({ id, icon, label }) => (
+                  <button
+                    key={id}
+                    onClick={() => setCategory(id)}
+                    className={`flex items-center gap-3 p-3 rounded-2xl border-2 transition-all ${
+                      category === id ? 'border-amber-500 bg-amber-50' : 'border-gray-200'
+                    }`}
+                  >
+                    <span className="text-2xl">{icon}</span>
+                    <span className={`text-sm font-medium text-left ${category === id ? 'text-amber-700' : 'text-gray-600'}`}>{label}</span>
+                  </button>
+                ))}
+              </div>
             </div>
-            <div className="mt-auto pb-8 flex flex-col gap-3">
+            <div className="pb-8 pt-3 flex flex-col gap-3 flex-shrink-0">
               <button onClick={() => setStep(2)} disabled={!businessName || !category} className="amber-btn">Next</button>
               <button onClick={() => setStep(0)} className="ghost-btn">Back</button>
             </div>
