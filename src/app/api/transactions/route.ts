@@ -23,6 +23,12 @@ export async function POST(req: NextRequest) {
     const db = getDb();
     const id = generateId();
 
+    // Guard: if the merchant/business no longer exist (e.g. DB reset), treat as expired session
+    const merchantExists = db.prepare('SELECT id FROM merchants WHERE id = ?').get(user.merchantId);
+    if (!merchantExists) {
+      return NextResponse.json({ error: 'Session expired' }, { status: 401 });
+    }
+
     db.prepare(`
       INSERT INTO transactions (id, business_id, merchant_id, type, payment_method, amount, description, category_tag, channel, customer_name)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'app', ?)
