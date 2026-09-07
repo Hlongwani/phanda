@@ -17,9 +17,6 @@ export function getDb(): Database.Database {
 }
 
 function initSchema(db: Database.Database) {
-  // Add columns introduced after initial deploy — safe to run repeatedly
-  try { db.exec('ALTER TABLE transactions ADD COLUMN customer_name TEXT'); } catch {}
-
   db.exec(`
     CREATE TABLE IF NOT EXISTS merchants (
       id TEXT PRIMARY KEY,
@@ -173,4 +170,7 @@ function initSchema(db: Database.Database) {
       FOREIGN KEY (business_id) REFERENCES businesses(id)
     );
   `);
+
+  // Migrations — safe to run repeatedly on existing DBs
+  try { db.exec('ALTER TABLE transactions ADD COLUMN customer_name TEXT'); } catch {}
 }
