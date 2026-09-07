@@ -98,7 +98,8 @@ export default function RecordPage() {
         setReceiptUrl(data.receiptUrl || '');
         setConfirmed(true);
       } else {
-        alert('Failed to record. Try again.');
+        const data = await res.json().catch(() => ({}));
+        alert(`Failed to record. ${data.detail || data.error || 'Try again.'}`);
       }
     } catch {
       // Offline — queue locally

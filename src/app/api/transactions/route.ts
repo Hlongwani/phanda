@@ -28,14 +28,15 @@ export async function POST(req: NextRequest) {
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'app', ?)
     `).run(id, user.businessId, user.merchantId, type, paymentMethod, amount, description || null, categoryTag || null, customerName?.trim() || null);
 
-    recalculatePassport(user.merchantId, user.businessId);
+    try { recalculatePassport(user.merchantId, user.businessId); } catch {}
 
     const transaction = db.prepare('SELECT * FROM transactions WHERE id = ?').get(id);
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || '';
     return NextResponse.json({ transaction, receiptUrl: `${baseUrl}/receipt/${id}` }, { status: 201 });
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ error: 'Failed to record transaction' }, { status: 500 });
+    const detail = err instanceof Error ? err.message : String(err);
+    return NextResponse.json({ error: 'Failed to record transaction', detail }, { status: 500 });
   }
 }
 
