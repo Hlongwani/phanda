@@ -107,15 +107,15 @@ export default function CreditPage() {
               <button onClick={() => setShowForm(false)} className="text-gray-400 text-2xl">×</button>
             </div>
             <input placeholder={dir === 'owed' ? 'Customer name *' : 'Supplier name *'} value={form.partyName} onChange={e => setForm(f => ({ ...f, partyName: e.target.value }))}
-              className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-amber-500" />
+              className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-amber-500 bg-white text-gray-900 placeholder-gray-400" />
             <input placeholder="Phone (optional)" value={form.partyPhone} onChange={e => setForm(f => ({ ...f, partyPhone: e.target.value }))}
-              className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-amber-500" />
+              className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-amber-500 bg-white text-gray-900 placeholder-gray-400" />
             <input placeholder="What for? *" value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
-              className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-amber-500" />
+              className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-amber-500 bg-white text-gray-900 placeholder-gray-400" />
             <input type="number" placeholder="Amount (R) *" value={form.totalAmount} onChange={e => setForm(f => ({ ...f, totalAmount: e.target.value }))}
-              className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-amber-500" />
+              className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-amber-500 bg-white text-gray-900 placeholder-gray-400" />
             <input type="date" placeholder="Due date (optional)" value={form.dueDate} onChange={e => setForm(f => ({ ...f, dueDate: e.target.value }))}
-              className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-amber-500" />
+              className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-amber-500 bg-white text-gray-900 placeholder-gray-400" />
             <button onClick={createAccount} disabled={submitting || !form.partyName || !form.description || !form.totalAmount} className="amber-btn">
               {submitting ? 'Saving...' : 'Save'}
             </button>
@@ -132,7 +132,7 @@ export default function CreditPage() {
               <button onClick={() => { setPayingId(null); setPayAmount(''); }} className="text-gray-400 text-2xl">×</button>
             </div>
             <input type="number" placeholder="Amount (R)" value={payAmount} onChange={e => setPayAmount(e.target.value)}
-              className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-amber-500" autoFocus />
+              className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-amber-500 bg-white text-gray-900 placeholder-gray-400" autoFocus />
             <button onClick={() => recordPayment(payingId)} disabled={!payAmount} className="amber-btn">Record</button>
           </div>
         </div>
