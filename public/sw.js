@@ -1,4 +1,4 @@
-const CACHE = 'phanda-v3';
+const CACHE = 'phanda-v4';
 
 const SHELL = ['/', '/dashboard', '/record', '/passport', '/insights', '/history'];
 
